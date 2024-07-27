@@ -1,0 +1,28 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "home/menu.html" %}
+{% endblock %}
+
+{% block current_time %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <form method="POST" action="{% url 'home:login' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Log in</button>
+            </form>                
+        </div>
+    </div>
+</div>
+
+{% endblock %}

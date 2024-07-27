@@ -1,0 +1,108 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+{% include "boards/menu.html" %}
+{% endblock %}
+
+{% block current_time %}
+
+{% endblock %}
+
+{% block content %}
+
+Board identification number: {{id}}<br>
+Serial port: {{serial_port}}<br>
+<input type="checkbox" id="autoScroll" checked>Auto scroll<br>
+<input type="checkbox" id="appendCR">Append CR<br>
+<input type="checkbox" id="appendLF">Append LF<br>
+<input type="checkbox" id="localEcho" checked>Local echo<br>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-10">
+            <textarea id="streamFrame" rows="15" readonly style="font-family: monospace; width: 100%;">
+            </textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10">
+            <form id="inputForm" action="#">
+                <input id="writeID" type="hidden" name="id" value="{{id}}">
+                <input id="writeText" type="text" name="data" onkeydown="if(event.keyCode===13) { event.preventDefault(); sendData(); }" style="font-family: monospace; width: 100%;" />
+                <input type="button" onclick="sendData();" value="Send" />
+                <input type="button" onclick="clearData();" value="Clear" />
+                <input id="startStopDataId" type="button" onclick="startStopData();" value="Stop" />
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var readPeriod = 500;
+    var startStopStatus = 1;
+
+    function scrollFrame() {
+        var textarea = document.getElementById("streamFrame");
+        if (document.getElementById("autoScroll").checked) {
+            textarea.scrollTop = textarea.scrollHeight;
+        }
+    }
+
+    function sendData() {
+        content = document.getElementById("writeText").value;
+        if (document.getElementById("appendCR").checked) {
+            content += "\r";
+        }
+        if (document.getElementById("appendLF").checked) {
+            content += "\n";
+        }
+        if (document.getElementById("localEcho").checked) {
+            document.getElementById("streamFrame").value += content;
+            scrollFrame();
+        }
+        $.ajax({
+            type: "POST",
+            url: "{% url 'boards:serial_write' id %}",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                id: document.getElementById("writeID").value,
+                data: content,
+            }
+        });
+    }
+
+    function readData() {
+        var http = new XMLHttpRequest();
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+                document.getElementById("streamFrame").value += http.responseText;
+                scrollFrame()
+            }
+        }
+        http.open("GET", "{% url 'boards:serial_read' id %}", true);
+        http.send();
+    }
+
+    function clearData() {
+        document.getElementById("streamFrame").value = "";
+    }
+
+    var readDataInterval = setInterval(readData, readPeriod);
+
+    function startStopData(){
+        if (startStopStatus == 1){
+            clearInterval(readDataInterval);
+            startStopStatus = 0;
+            document.getElementById("startStopDataId").value = "Start";
+        } else {
+            readDataInterval = setInterval(readData, readPeriod);
+            startStopStatus = 1;
+            document.getElementById("startStopDataId").value = "Stop";
+        }
+    }
+
+</script>
+{% endblock %}

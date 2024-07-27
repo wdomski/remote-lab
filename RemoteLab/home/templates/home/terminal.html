@@ -1,0 +1,155 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "home/menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <textarea id="terminal-output" rows="20" style="resize: none; overflow-y: scroll; font-family: monospace; width: 100%;"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <form id="command-form">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-12">
+                {% csrf_token %}
+                <input type="text" id="command-input" name="command" style="width: 100%;">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="row">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary">Execute</button>
+                <button id="resetButton" class="btn btn-danger">Reset</button>
+                <button id="clearButton" class="btn btn-light">Clear</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> 
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+  document.getElementById("clearButton").addEventListener("click", function(event) {
+    event.preventDefault();
+    document.getElementById("terminal-output").value = "";
+  }); 
+
+  document.getElementById("resetButton").addEventListener("click", function(event) {
+    event.preventDefault();
+
+    var data = {
+    };
+
+    var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+    var headers = new Headers();
+    headers.append("X-CSRFToken", csrfToken);
+
+    fetch("{% url 'home:terminal_reset' %}", {
+      method: "POST",
+      headers: headers,
+      credentials: "same-origin",
+      body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(text => {
+    });      
+  });
+
+  document.getElementById("command-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    var formData = new FormData();
+    formData.append("command", document.getElementById("command-input").value);
+
+    var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+    var headers = new Headers();
+    headers.append("X-CSRFToken", csrfToken);
+
+    fetch("{% url 'home:terminal' %}", {
+      method: "POST",
+      headers: headers,
+      credentials: "same-origin",
+      body: formData
+    })
+    .then(response => response.text())
+    .then(text => {
+      var command = document.getElementById("command-input").value;
+      document.getElementById("command-input").value = "";
+
+      var terminalOutput = document.getElementById("terminal-output");
+      terminalOutput.value += "$ " + command + "\n";
+      terminalOutput.value += text;
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    });
+  });
+
+  function updateTerminal(){
+    var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+    var headers = new Headers();
+    headers.append("X-CSRFToken", csrfToken);
+
+    fetch("{% url 'home:terminal_update' %}", {
+      method: "POST",
+      headers: headers,
+      credentials: "same-origin",
+      body: ""
+    })
+    .then(response => response.text())
+    .then(text => {
+      var terminalOutput = document.getElementById("terminal-output");
+      terminalOutput.value += text;
+      // scroll only wehn there was some data
+      if (text != ""){
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+      }
+    });
+  }
+  setInterval(updateTerminal, 1000);
+
+  let command = document.getElementById("command-input");
+  let history = [];
+  let currentHistoryIndex = -1;
+  let storedCommand = "";
+
+  command.addEventListener("keydown", function(event) {
+    if (event.code === "ArrowDown") {
+      if (currentHistoryIndex < history.length && currentHistoryIndex != -1) {
+        if(currentHistoryIndex == history.length - 1){
+          currentHistoryIndex = -1;
+          command.value = storedCommand;
+        } else {
+          currentHistoryIndex++;
+          command.value = history[currentHistoryIndex];
+        }
+      }
+    } else if (event.code === "ArrowUp") {
+      if (currentHistoryIndex == -1) {
+        currentHistoryIndex = history.length - 1;
+        storedCommand = command.value;
+        command.value = history[currentHistoryIndex];
+      } else if (currentHistoryIndex > 0) {
+        currentHistoryIndex--;
+        command.value = history[currentHistoryIndex];
+      }
+    } else if (event.code === "Enter") {
+      if (command.value) {
+        history.push(command.value);
+        currentHistoryIndex = -1;
+      }
+    }
+  });
+</script>
+{% endblock %}

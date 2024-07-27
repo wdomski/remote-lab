@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />   
+
+
+    <title>RemoteLab</title>
+
+    <style>
+        .container {
+          margin: 0em 0em 0em 0em;
+        }
+
+        .row {
+            margin-bottom: 0em;
+        }        
+    </style>    
+  </head>
+  <body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <a href="{% url 'home:home' %}">
+                    <button type="button" class="btn btn-warning">
+                        Home
+                    </button>
+                </a>  
+                <a href="{% url 'boards:home' %}">
+                    <button type="button" class="btn btn-warning">
+                        Panel
+                    </button>    
+                </a>  
+                <a href="{% url 'video:home' %}">
+                    <button type="button" class="btn btn-warning">
+                        Video
+                    </button>    
+                </a>          
+            </div>
+        </div>        
+        <div class="row">
+            <div class="col-12">
+                <a href="{{request.META.HTTP_REFERER}}">
+                    <button type="button" class="btn btn-primary">
+                        Back
+                    </button>
+                </a>
+                {% block submenu %}
+                {% endblock %}
+            </div>            
+        </div>     
+    </div>   
+
+    <div class="container-fluid">    
+        
+        {% if hostname and current_time %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    Server: {{hostname}}</br>
+                    Load time: {{ current_time }}</br>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if message_type %}
+        <div class="alert alert-{{message_type}}" role="alert">
+            {{message}}
+        </div>
+        {% endif %}        
+
+        <div class="row">
+            <div class="col-12">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    {% block scripts %}
+    {% endblock %}   
+
+    <div class="container-fluid" style="margin-top: 2em;">     
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-primary" role="alert">
+                    Wojciech Domski, All rights reserved &copy; {% now "Y" %}
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>

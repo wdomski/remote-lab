@@ -1,0 +1,28 @@
+<a href="{% url 'home:home' %}">
+    <button type="button" class="btn btn-warning">
+        Home
+    </button>    
+</a>
+{% if request.session.login_successful > 0 %}
+<a href="{% url 'home:terminal' %}">
+    <button type="button" class="btn btn-warning">
+        Terminal
+    </button>    
+</a>  
+{% endif %}
+{% if request.session.login_successful > 0 %}
+    <a href="{% url 'home:logout' %}">
+        <button type="button" class="btn btn-warning">
+            Logout
+        </button>    
+    </a>
+{% else %}
+<a href="{% url 'home:login' %}">
+    <button type="button" class="btn btn-warning">
+        Login
+    </button>    
+</a>
+{% endif %}
+
+<br>
+<br>

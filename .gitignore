@@ -1,0 +1,22 @@
+# IDE
+.vscode
+
+# Compiled Python file and cache
+__pycache__
+*.pyc
+
+# Django
+*.sqlite3
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints
+
+# CSV files
+csv/*
+!csv/.gitkeep
+*.csv
+
+# Virtual environment
+.venv
+
+nohup.out

@@ -1,0 +1,12 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "video/menu.html" %}
+{% endblock %}
+
+{% block content %}
+<p>Live stream started at {{current_time}}</p>
+<div class="container">
+    <img src="{% url 'video:stream' %}" class="img-fluid" style="width: 100%;">
+</div>
+{% endblock %}

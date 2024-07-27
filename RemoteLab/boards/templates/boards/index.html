@@ -1,0 +1,67 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "boards/menu.html" %}
+{% endblock %}
+
+{% block current_time %}
+
+{% endblock %}
+
+{% block content %}
+
+<table class="table">
+    <thead>
+        <td> ID </td>
+        <td> Reset </td>
+        <td> Halt </td>
+        <td> Resume </td>
+        <td> Restart debugger service </td>
+        {% if request.session.login_successful > 0 %}
+        <td> Start debugger </td>
+        <td> Stop debugger </td>
+        {% endif %}
+        <td> Service type </td>
+        <td> Port </td>
+        <td> Status </td>
+        <td> Board </td>
+        <td> Serial </td>
+        <td> Features </td>
+    </thead>       
+        {% for dev in devices %}
+        <tr>
+        <td> {{dev.id}} </td>
+        <td> {% if dev.debugger_service == "openocd" %} <a href="{% url 'boards:reset' dev.id %}">Reset</a> {% endif %} </td>
+        <td> {% if dev.debugger_service == "openocd" %} <a href="{% url 'boards:halt' dev.id %}">Halt</a> {% endif %} </td>
+        <td> {% if dev.debugger_service == "openocd" %} <a href="{% url 'boards:resume' dev.id %}">Resume</a> {% endif %} </td>
+        <td> <a href="{% url 'boards:restart_debugger' dev.id %}">Restart</a> </td>
+        {% if request.session.login_successful > 0 %}
+        <td> <a href="{% url 'boards:start_debugger' dev.id %}">Start</a> </td>
+        <td> <a href="{% url 'boards:stop_debugger' dev.id %}">Stop</a> </td>
+        {% endif %}
+        <td> {{dev.debugger_service}} </td>
+        <td> {{dev.port}} </td>
+        <td> 
+           {% if dev.status == "Online" %}
+           <span class="bi bi-emoji-smile"></span>
+           {% elif dev.status == "Offline" %}
+           <span class="bi bi-emoji-frown"></span>
+           {% elif dev.status == "Error" %}
+           <span class="bi bi-exclamation-triangle"></span>
+           {% else %}
+           {{dev.status}}
+           {% endif %}
+        </td>
+        <td> {{dev.board}} </td>
+        <td> {{dev.serial}} 
+            {% if request.session.login_successful > 0 %}
+            <a href="{% url 'boards:serial_console' dev.id %}">Serial</a> ({% if dev.serial_in_use %}1{% else %}0{% endif %})
+            {% endif %}
+        </td>
+        <td> {{dev.features}} </td>       
+       </tr> 
+       {% endfor %}
+    </table>
+</table>
+
+{% endblock %}

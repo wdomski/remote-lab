@@ -1,0 +1,29 @@
+[
+    {
+        "id": "1",
+        "board": "Nucleo-L476RG",
+        "debugger": "ST-LINK V2",
+        "server": "",
+        "port": "3001",
+        "serial": "",
+        "features": [
+            "DAC1",
+            "ADC1",
+            "TIMER3",
+            "ADC2",
+            "ADC3",
+            "ADC4",
+            "LED1",
+            "LED2",
+            "TIMER4",
+            "INT1-2",
+            "TIMER1",
+            "TIMER5",
+            "GPIO4",
+            "ADC5",
+            "LED_ON_BOARD"
+        ],
+        "status": "active",
+        "debugger_service": "openocd"
+    }
+]

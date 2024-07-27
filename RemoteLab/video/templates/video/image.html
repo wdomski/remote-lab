@@ -1,0 +1,77 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "video/menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <p></p>Preview generated at {{current_time}}</p>
+    <div class="row">
+        <div class="col-12">
+            <span id="refreshTime">.</span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="container">
+                Automatic refresh: <input type="checkbox" id="autoRefresh" {% if auto_refresh %}checked{% endif %}>
+            </div>
+        </div>
+    </div>    
+    <div class="container">
+        <img src="{% url 'video:camera' %}" class="img-fluid" style="width: 100%;">
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var loadTime = new Date();
+
+    function refreshDateTime() {
+        var currentTime = new Date();
+        var elapsedTime = Math.floor((currentTime - loadTime) / 1000);
+        var refreshTime = 10 - (elapsedTime % 60);
+        var autoRefresh = document.getElementById("autoRefresh").checked;
+        if( autoRefresh ) {
+            document.getElementById("refreshTime").innerHTML = "Page will refresh in " + refreshTime + "  seconds";
+        } else {
+            document.getElementById("refreshTime").innerHTML = "Automatic refresh OFF";
+        }          
+        if (refreshTime <= 0) {
+            // try to refresh only every 5 seconds
+            if (Math.abs(refreshTime % 5) === 0) {
+                // get refresh checkbox status
+                if (autoRefresh) {
+                    // refresh page
+                    if ( window.history.replaceState ) {
+                        window.history.replaceState( null, null, window.location.href );
+                    }
+                    window.location = window.location.href;
+                }
+            }
+        }
+    }
+
+    document.getElementById("autoRefresh").addEventListener("change", function() {
+        var autoRefresh = document.getElementById("autoRefresh").checked;
+
+        if (autoRefresh) {
+            // reset load time
+            loadTime = new Date();
+        }
+        refreshDateTime();
+        $.ajax({
+            type: "POST",
+            url: "{% url 'video:autorefresh' %}",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                auto_refresh: autoRefresh
+            }
+        });        
+    });
+
+    refreshDateTime();
+    setInterval(refreshDateTime, 1000);
+
+</script>
+{% endblock %}

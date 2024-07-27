@@ -1,0 +1,110 @@
+{% extends "home/base.html" %}
+
+{% block submenu %}
+    {% include "video/menu.html" %}
+{% endblock %}
+
+{% block content %}
+
+<form action="{% url 'video:settings' %}" method="post">
+    {% csrf_token %}
+    <table>
+        <thead>
+            <tr>
+                <th class="col-1">Parameter</th>
+                <th class="col-9">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><input type="hidden" name="changesettings" value="1"></tr>
+    <tr>
+        <td>
+            Resolution
+        </td>
+        <td>
+            <select name="resolution">
+                {% for res in resolutions %}
+                    {% if settings.resolution == res %}
+                        <option value = "{{ res }}" selected>{{ res }}</option>
+                    {% else %}
+                        <option value = "{{ res }}">{{ res }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Rotation
+        </td>
+        <td>
+            <select name="rotation">
+                {% for rot in rotations %}
+                    {% if settings.rotation == rot %}
+                        <option value = "{{ rot }}" selected>{{ rot }}</option>
+                    {% else %}
+                        <option value = "{{ rot }}">{{ rot }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select><br>  
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            Horizontal flip
+        </td>
+        <td>
+            <input name="hflip" type="checkbox" {% if settings.hflip %} checked {% endif %}>
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            Vertical flip
+        </td>
+        <td>
+            <input name="vflip" type="checkbox" {% if settings.vflip %} checked {% endif %}>
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            Brightness
+        </td>
+        <td>
+            <input type="range" name="brightness" min="{{settings.min_brightness}}" max="{{settings.max_brightness}}" value="{{settings.brightness}}" step="{{settings.step_brightness}}" oninput="document.getElementById('lBrightness').innerHTML = this.value">
+            <label id="lBrightness">{{settings.brightness}}</label>
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            Contrast
+        </td>
+        <td>
+            <input type="range" name="contrast" min="{{settings.min_contrast}}" max="{{settings.max_contrast}}" value="{{settings.contrast}}" step="{{settings.step_contrast}}" oninput="document.getElementById('lContrast').innerHTML = this.value">
+            <label id="lContrast">{{settings.contrast}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Saturation
+        </td>
+        <td>
+            <input type="range" name="saturation" min="{{settings.min_saturation}}" max="{{settings.max_saturation}}" value="{{settings.saturation}}" step="{{settings.step_saturation}}" oninput="document.getElementById('lSaturation').innerHTML = this.value">
+            <label id="lSaturation">{{settings.saturation}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Sharpness
+        </td>
+        <td>
+            <input type="range" name="sharpness" min="{{settings.min_sharpness}}" max="{{settings.max_sharpness}}" value="{{settings.sharpness}}" step="{{settings.step_sharpness}}" oninput="document.getElementById('lSharpness').innerHTML = this.value">
+            <label id="lSharpness">{{settings.sharpness}}</label>
+        </td>
+    </tr>
+    
+    </tbody>
+    </table>
+    <input type="submit" value="Send">
+</form>
+
+{% endblock %}

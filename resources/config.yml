@@ -1,0 +1,4 @@
+boards_config: "/path/to/resources/boards.json"
+password: "hash for super user password"
+
+
