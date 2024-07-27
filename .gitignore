@@ -7,6 +7,7 @@ __pycache__
 
 # Django
 *.sqlite3
+migrations
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints
