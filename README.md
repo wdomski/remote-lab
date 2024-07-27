@@ -86,6 +86,8 @@ There is a possibility to enable auto-refresh option. This allows to refresh the
 
 The serwer allows to extend available features presented to the end user after providing super user password. This feature allows to manager resources more precisely and unlocks additional capabilities.
 
+The password can be configured inside **RemoteLab/resources/config.yml** file. For *password* key enter MD5 hash of the password.
+
 ## Terminal window
 
 Terminal console (on the server) is available via web interface. It allows to execute commands with shell-like experience. There are some limitations, mainly when executing a command it should finish. Only when the command finishes it will provide the output of the command, thus commands like watch, less will not work.
