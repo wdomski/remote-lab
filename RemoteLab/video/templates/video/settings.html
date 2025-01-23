@@ -6,6 +6,7 @@
 
 {% block content %}
 
+
 <form action="{% url 'video:settings' %}" method="post">
     {% csrf_token %}
     <table>
@@ -101,7 +102,90 @@
             <label id="lSharpness">{{settings.sharpness}}</label>
         </td>
     </tr>
-    
+    <tr>
+        <td>
+            Frame rate
+        </td>
+        <td>
+            <input type="range" name="framerate" min="{{settings.min_framerate}}" max="{{settings.max_framerate}}" value="{{settings.framerate}}" step="{{settings.step_framerate}}" oninput="document.getElementById('lFramerate').innerHTML = this.value">
+            <label id="lFramerate">{{settings.framerate}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Bitrate
+        </td>
+        <td>
+            <input type="range" name="bitrate" min="{{settings.min_bitrate}}" max="{{settings.max_bitrate}}" value="{{settings.bitrate}}" step="{{settings.step_bitrate}}" oninput="document.getElementById('lBitrate').innerHTML = this.value">
+            <label id="lBitrate">{{settings.bitrate}}</label>
+        </td>
+    </tr>
+    {% if settings.autofocus_mode %}
+    <tr>
+        <td>
+            Autofocus Mode
+        </td>
+        <td>
+            <select name="autofocus_mode">
+                {% for mode in autofocus_modes %}
+                    {% if settings.autofocus_mode == mode %}
+                        <option value="{{ mode }}" selected>{{ mode }}</option>
+                    {% else %}
+                        <option value="{{ mode }}">{{ mode }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </td>
+    </tr>
+    {% endif %}
+    {% if settings.autofocus_lens_position %}
+    <tr>
+        <td>
+            Autofocus Lens Position
+        </td>
+        <td>
+            <input type="range" name="autofocus_lens_position" min="{{settings.min_autofocus_lens_position}}" max="{{settings.max_autofocus_lens_position}}" value="{{settings.autofocus_lens_position}}" step="{{settings.step_autofocus_lens_position}}"" oninput="document.getElementById('lAfLensPosition').innerHTML = this.value">
+            <label id="lAfLensPosition">{{settings.autofocus_lens_position}}</label>
+        </td>
+    </tr>
+    {% endif %}
+    {% if settings.exposure_value %}
+    <tr>
+        <td>
+            Exposure Value
+        </td>
+        <td>
+            <input type="range" name="exposure_value" min="{{settings.min_exposure_value}}" max="{{settings.max_exposure_value}}" value="{{settings.exposure_value}}" step="{{settings.step_exposure_value}}" oninput="document.getElementById('lExposureValue').innerHTML = this.value">
+            <label id="lExposureValue">{{settings.exposure_value}}</label>
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>
+            JPEG Quality
+        </td>
+        <td>
+            <input type="range" name="jpeg_quality" min="{{settings.min_jpeg_quality}}" max="{{settings.max_jpeg_quality}}" value="{{settings.jpeg_quality}}" step="{{settings.step_jpeg_quality}}" oninput="document.getElementById('lJpegQuality').innerHTML = this.value">
+            <label id="lJpegQuality">{{settings.jpeg_quality}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            JPEG Quality Auto
+        </td>
+        <td>
+            <input name="jpeg_quality_auto" type="checkbox" {% if settings.jpeg_quality_auto %} checked {% endif %}>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            JPEG Quality Auto Goal
+        </td>
+        <td>
+            <input type="range" name="jpeg_quality_auto_goal" min="{{settings.min_jpeg_quality_auto_goal}}" max="{{settings.max_jpeg_quality_auto_goal}}" value="{{settings.jpeg_quality_auto_goal}}" step="{{settings.step_jpeg_quality_auto_goal}}" oninput="document.getElementById('lJpegQualityAutoGoal').innerHTML = this.value">
+            <label id="lJpegQualityAutoGoal">{{settings.jpeg_quality_auto_goal}}</label>
+        </td>
+    </tr>
     </tbody>
     </table>
     <input type="submit" value="Send">

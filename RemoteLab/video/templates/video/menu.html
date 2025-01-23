@@ -4,7 +4,7 @@
     </button>    
 </a>
 {% if request.session.login_successful > 0 %}
-<a href="{% url 'video:video' %}">
+<a href="{% url 'video:video_jpeg' %}">
     <button type="button" class="btn btn-warning">
         Video
     </button>    
@@ -19,7 +19,7 @@
         Camera
     </button>    
 </a>  
-<a href="{% url 'video:stream' %}">
+<a href="{% url 'video:stream_jpeg' %}">
     <button type="button" class="btn btn-danger">
         Stream
     </button>    
