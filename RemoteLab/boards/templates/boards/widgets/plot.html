@@ -1,0 +1,252 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<style>
+  .chart-container {
+    width: 100%;
+    height: 30em;
+    margin: auto;
+  }
+</style>
+
+<div class="card chart-container">
+  <br />
+  <canvas id="chart"></canvas>
+</div>
+
+<button type="button" class="btn btn-primary" id="clearButton">Clear Plot</button>
+<button type="button" class="btn btn-danger" id="purgeButton">Purge Plot</button>
+
+<label for="maxSamples">Max Samples:</label>
+<input type="number" id="maxSamples" name="maxSamples" min="10" max="1000" step="1" value="10" />
+
+<label for="dataContainsCounter">Data contains counter:</label>
+<input type="checkbox" id="dataContainsCounter" name="dataContainsCounter" />
+
+<br />
+
+<div class="row">
+  <div class="col-6">
+    <h3>Statistics</h3>
+    <table class="table" id="dataTable">
+      <tr>
+        <th>Dataset</th>
+        <th>Last value</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th>Mean</th>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('chart')
+  const maxSamples = document.getElementById('maxSamples')
+  const dataContainsCounter = document.getElementById('dataContainsCounter')
+  
+  let labels = []
+  let datasets = []
+  
+  const data = {
+    labels: [],
+    datasets: []
+  }
+  
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+      maintainAspectRatio: false
+    }
+  }
+  
+  const myChart = new Chart(canvas, config)
+  
+  /*
+   * Split incoming data based on semicolon
+   * @param {string} data - incoming data
+   * @returns {Array} - parsed data
+   */
+  function parseData(data) {
+    return data.split(';').map(Number)
+  }
+  
+  /*
+   * Update plot with new data
+   * @param {string} data - incoming data, single line
+   */
+  function updatePlot(data) {
+    // parse data
+    parsed = parseData(data)
+    timestamp = ''
+    counterPresent = dataContainsCounter.checked
+  
+    if (counterPresent) {
+      timestamp = parsed.shift()
+    } else {
+      timestamp = new Date().toLocaleTimeString()
+    }
+    addData(myChart, timestamp, parsed, maxSamples.value)
+  }
+  
+  /*
+   * Update plot with multiple lines of data
+   * @param {string} data - incoming data, multiple lines
+   */
+  function updatePlotMulti(data) {
+    chunks = data.split('\n')
+    for (let i = 0; i < chunks.length; i++) {
+      updatePlot(chunks[i])
+    }
+  }
+  
+  /*
+   * Add data to plot
+   * @param {object} chart - chart object
+   * @param {string} label - label for x-axis
+   * @param {Array} data - data to be added
+   * @param {number} n_max_values - maximum number of values to be displayed
+   */
+  function addData(chart, label, data, n_max_values) {
+    chart.data.labels.push(label)
+  
+    // check if datasets are already created
+    if (chart.data.datasets.length < data.length) {
+      for (let i = 0; i < data.length; i++) {
+        // randomly generate rgb values for each new dataset
+        const rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)]
+        const k = 50
+        const darkerRgb = rgb.map((value) => Math.max(0, value - k))
+        const borderColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+        const backgroundColor = `rgb(${darkerRgb[0]}, ${darkerRgb[1]}, ${darkerRgb[2]})`
+        chart.data.datasets.push({
+          label: 'Dataset ' + i,
+          backgroundColor: backgroundColor,
+          borderColor: borderColor,
+          data: []
+        })
+  
+        // add row to table
+        const table = document.getElementById('dataTable')
+        const row = table.insertRow(-1)
+        for (let j = 0; j < 5; j++) {
+          const cell = row.insertCell(j)
+          if (j == 0) {
+            cell.innerHTML = 'Dataset ' + i + ' ' + '<div style="width: 20px; height: 20px; background-color: ' + borderColor + ';"></div>'
+          } else {
+            cell.innerHTML = ''
+          }
+        }
+      }
+    }
+  
+    // add data to datasets
+    for (let i = 0; i < data.length; i++) {
+      chart.data.datasets[i].data.push(data[i])
+    }
+  
+    // remove old data
+    if (chart.data.labels.length > n_max_values) {
+      let n = chart.data.labels.length - n_max_values
+      for (let i = 0; i < n; i++) {
+        chart.data.labels.shift()
+        for (let i = 0; i < data.length; i++) {
+          chart.data.datasets[i].data.shift()
+        }
+      }
+    }
+  
+    // calculate stats
+    let stats = []
+    for (let i = 0; i < data.length; i++) {
+      const dataset = chart.data.datasets[i].data
+      const lastValue = dataset[dataset.length - 1]
+      const min = Math.min(...dataset)
+      const max = Math.max(...dataset)
+      const mean = dataset.reduce((a, b) => a + b, 0) / dataset.length
+      stats.push([lastValue, min, max, mean])
+    }
+  
+    // update table with stats
+    const table = document.getElementById('dataTable')
+    for (let i = 0; i < stats.length; i++) {
+      const row = table.rows[i + 1]
+      for (let j = 0; j < 4; j++) {
+        row.cells[j + 1].innerHTML = stats[i][j].toFixed(2)
+      }
+    }
+  
+    chart.update('none')
+  }
+  
+  /*
+   * Clear plot and table
+   * Preserve datasets configuration, like number of datasets and colors
+   * @param {object} chart - chart object
+   */
+  function clearPlot(chart) {
+    // clear plot
+    chart.data.labels = []
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data = []
+    })
+    chart.update()
+  
+    // clear table
+    const table = document.getElementById('dataTable')
+    for (let i = 1; i < table.rows.length; i++) {
+      const row = table.rows[i]
+      for (let j = 1; j < 5; j++) {
+        row.cells[j].innerHTML = ''
+      }
+    }
+  }
+  
+  /*
+   * Purge plot and table
+   * Remove all datasets and rows from table
+   * @param {object} chart - chart object
+   */
+  function purgePlot(chart) {
+    // clear plot
+    chart.data.labels = []
+    chart.data.datasets = []
+    chart.update()
+  
+    // remove rows from table
+    const table = document.getElementById('dataTable')
+    while (table.rows.length > 1) {
+      table.deleteRow(-1)
+    }
+  }
+  
+  document.getElementById('clearButton').addEventListener('click', function () {
+    clearPlot(myChart)
+  })
+  
+  document.getElementById('purgeButton').addEventListener('click', function () {
+    purgePlot(myChart)
+  })
+  
+  // for testing purposes
+  let testingPlot = false
+  
+  if (testingPlot) {
+    let counter = 0
+    setInterval(function () {
+      const newData = []
+      let n = 4
+      if (dataContainsCounter.checked) {
+        newData.push(counter)
+        ++counter
+      }
+      for (let i = 0; i < n; i++) {
+        newData.push(Math.random() * 10)
+      }
+      // change intro string separated with semicolon
+      const newDataString = newData.join(';') + '\r\n'
+  
+      updatePlot(newDataString)
+    }, 1000)
+  }
+</script>

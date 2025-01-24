@@ -16,4 +16,5 @@ urlpatterns = [
     path('serial_read_stream/<str:id>/', views.serial_read_stream, name="serial_read_stream"),    
     path('serial_read/<str:id>/', views.serial_read, name="serial_read"),    
     path('serial_write/<str:id>/', views.serial_write, name="serial_write"),    
+    path('plot/', views.plot, name="plot"),
 ]

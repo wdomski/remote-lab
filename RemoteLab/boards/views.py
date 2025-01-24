@@ -18,46 +18,53 @@ devices = read_json(boards_config, hostname)
 serial_devices = serialDeviceList()
 serial_governor = SerialGovernor()
 
+
 def list_devices():
     parsed_devices = []
     for dev in devices:
-        parsed_device = {'id': dev['id'], 'port': dev['port'], 'status': 'Error', 'board': dev['board'], 
-            'serial': 'Unavailable', 'features': ', '.join(dev['features']), 'debugger_service': dev['debugger_service'],
-            'serial_in_use': False}
+        parsed_device = {
+            "id": dev["id"],
+            "port": dev["port"],
+            "status": "Error",
+            "board": dev["board"],
+            "serial": "Unavailable",
+            "features": ", ".join(dev["features"]),
+            "debugger_service": dev["debugger_service"],
+            "serial_in_use": False,
+        }
 
-        status = checkPort(int(dev['port']))
+        status = checkPort(int(dev["port"]))
         if status == 0:
-            parsed_device['status'] = 'Online'
+            parsed_device["status"] = "Online"
         elif status == 1:
-            parsed_device['status'] = 'Offline'
+            parsed_device["status"] = "Offline"
 
-        serial_number = dev['serial']
+        serial_number = dev["serial"]
         if serial_number in serial_devices:
-            parsed_device['serial'] = serial_devices[serial_number]
-            if serial_governor.in_use(parsed_device['serial']):
-                parsed_device['serial_in_use'] = True
-        
+            parsed_device["serial"] = serial_devices[serial_number]
+            if serial_governor.in_use(parsed_device["serial"]):
+                parsed_device["serial_in_use"] = True
+
         parsed_devices.append(parsed_device)
 
-    parameters = {'devices': parsed_devices,
-                    'refreshrate': 10}
-    
+    parameters = {"devices": parsed_devices, "refreshrate": 10}
+
     return parameters
 
 
-def home(request):    
+def home(request):
     data = list_devices()
     data.update(get_status())
-    
-    return render(request, 'boards/index.html', data)
+
+    return render(request, "boards/index.html", data)
 
 
 def reset(request, id: str):
     data = list_devices()
     data.update(get_status())
-    
+
     # Check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Reset board with ID {id}"
@@ -75,19 +82,19 @@ def reset(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
+
+    data["message"] = message
+    data["message_type"] = message_type
+
+    return render(request, "boards/index.html", data)
 
 
 def halt(request, id: str):
     data = list_devices()
     data.update(get_status())
-    
+
     # Check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Halted board with ID {id}"
@@ -105,18 +112,19 @@ def halt(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
+
+    data["message"] = message
+    data["message_type"] = message_type
+
+    return render(request, "boards/index.html", data)
+
 
 def resume(request, id: str):
     data = list_devices()
     data.update(get_status())
-    
+
     # Check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Resumed board with ID {id}"
@@ -134,15 +142,16 @@ def resume(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
 
-def restart_debugger(request, id: str):    
-    #check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    data["message"] = message
+    data["message_type"] = message_type
+
+    return render(request, "boards/index.html", data)
+
+
+def restart_debugger(request, id: str):
+    # check if id is inside devices
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Restarted board with ID {id}"
@@ -157,17 +166,18 @@ def restart_debugger(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
+
     data = list_devices()
     data.update(get_status())
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
+    data["message"] = message
+    data["message_type"] = message_type
 
-def start_debugger(request, id: str):    
+    return render(request, "boards/index.html", data)
+
+
+def start_debugger(request, id: str):
     # Check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Started debugger for board with ID {id}"
@@ -182,17 +192,18 @@ def start_debugger(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
+
     data = list_devices()
     data.update(get_status())
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
+    data["message"] = message
+    data["message_type"] = message_type
 
-def stop_debugger(request, id: str):    
+    return render(request, "boards/index.html", data)
+
+
+def stop_debugger(request, id: str):
     # Check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
         message_type = "success"
         message = f"Stopped debugger for board with ID {id}"
@@ -207,41 +218,44 @@ def stop_debugger(request, id: str):
     else:
         message_type = "danger"
         message = f"Wrong ID {id}"
-    
+
     data = list_devices()
     data.update(get_status())
-    data['message'] = message
-    data['message_type'] = message_type
-    
-    return render(request, 'boards/index.html', data)
+    data["message"] = message
+    data["message_type"] = message_type
+
+    return render(request, "boards/index.html", data)
+
 
 def serial_console(request, id: str):
     data = list_devices()
     data.update(get_status())
-    #check if id is inside devices
-    available_ids = [dev['id'] for dev in devices]
+    # check if id is inside devices
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
-        dev = next(dev for dev in devices if dev['id'] == id)
-        serial_number = dev['serial']
+        dev = next(dev for dev in devices if dev["id"] == id)
+        serial_number = dev["serial"]
         serial_device = serial_devices[serial_number]
-        parameters={'id': id, 
-                    'serial_port': serial_device, 
-                    }
+        parameters = {
+            "id": id,
+            "serial_port": serial_device,
+        }
         data.update(parameters)
     else:
-        data['message'] = "Wrong ID"
-        data['message_type'] = "danger"
+        data["message"] = "Wrong ID"
+        data["message_type"] = "danger"
+        data["id"] = -1
 
-    return render(request, 'boards/serial_console.html', data)
+    return render(request, "boards/serial_console.html", data)
+
 
 def serial_read_stream(request, id: str):
-    data = list_devices()
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
-        dev = next(dev for dev in devices if dev['id'] == id)
-        serial_number = dev['serial']
+        dev = next(dev for dev in devices if dev["id"] == id)
+        serial_number = dev["serial"]
         serial_device = serial_devices[serial_number]
-        
+
         def generate():
             while True:
                 data = serial_governor.read(serial_device)
@@ -249,30 +263,37 @@ def serial_read_stream(request, id: str):
 
         g = generate()
         return StreamingHttpResponse(g, content_type="text/plain")
+    
+    return HttpResponse("Wrong ID", status=404)
 
-    else:
-        status = "Wrong ID"
-
-    return render(request, 'boards/serial_read_stream.html', data)
 
 def serial_read(request, id: str):
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     output = ""
     if id in available_ids:
-        dev = next(dev for dev in devices if dev['id'] == id)
-        serial_number = dev['serial']
+        dev = next(dev for dev in devices if dev["id"] == id)
+        serial_number = dev["serial"]
         serial_device = serial_devices[serial_number]
         output = serial_governor.read(serial_device)
+    else:
+        return HttpResponse("Wrong ID", status=404)
 
     return HttpResponse(output)
 
+
 def serial_write(request, id: str):
-    available_ids = [dev['id'] for dev in devices]
+    available_ids = [dev["id"] for dev in devices]
     if id in available_ids:
-        dev = next(dev for dev in devices if dev['id'] == id)
-        serial_number = dev['serial']
+        dev = next(dev for dev in devices if dev["id"] == id)
+        serial_number = dev["serial"]
         serial_device = serial_devices[serial_number]
-        data = request.POST.get('data', '')
+        data = request.POST.get("data", "")
         serial_governor.write(serial_device, data)
 
     return HttpResponse("OK")
+
+def plot(request):
+    data = list_devices()
+    data.update(get_status())
+
+    return render(request, "boards/plot.html", data)
