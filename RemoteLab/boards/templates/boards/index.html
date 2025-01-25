@@ -54,9 +54,7 @@
         </td>
         <td> {{dev.board}} </td>
         <td> {{dev.serial}} 
-            {% if request.session.login_successful > 0 %}
             <a href="{% url 'boards:serial_console' dev.id %}">Serial</a> ({% if dev.serial_in_use %}1{% else %}0{% endif %})
-            {% endif %}
         </td>
         <td> {{dev.features}} </td>       
        </tr> 

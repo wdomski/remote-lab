@@ -2,7 +2,7 @@
 
 RemoteLab is a platform intended to be run on small SBC like Raspberry Pi providing remote access to development boards like STM32 boards.
 
-The project is developed in Python. Initially, the web server providing services like status server and camera serwer was realized using Flask.However, current implementation depends on Django unifying these two services and enhancing user experience.
+The project is developed in Python. Initially, the web server providing services like status server and camera server was realized using Flask.However, current implementation depends on Django unifying these two services and enhancing user experience.
 
 I have created this platform for my students at Wrocław University of Science and Technology. During the period of pandemic it was necessary to develop a tool which would enable students to remotely realize exercise as they would do during normal classes. The initial version was launched in 2020 and since then it is operational 24/7 providing access to remote resources. 
 
@@ -74,7 +74,63 @@ Features are tag-like entities. Since each development board is equipped with a 
 
 ### Health status
 
-In addition, the health status is being displayed. If a smily face is being displayed it means that the debugger service is operational. However, when a warning is being displayed it means that the debugger service is not running. In this case restart of the debugger is recommended. 
+In addition, the health status is being displayed. If a smiley face is being displayed it means that the debugger service is operational. However, when a warning is being displayed it means that the debugger service is not running. In this case restart of the debugger is recommended. 
+
+### Serial console
+
+In addition to providing path to serial device it is possible to open a serial console via web interface and directly read/send data and plot in real-time.
+
+The serial console offers information to what serial port it was connected and to which development board. More over, it is possible to enable:
+- auto scrolling (enabled by default),
+- append CR,
+- append LF,
+- local echo (enabled by default).
+
+The console automatically pulls data from serial device available on the server and sends it to web interface. It is possible to clear the console or stop data reception. Refresh rate for pulling data from serial device can be adjusted. It is possible to change it between 200 ms up to 2 seconds wit a 50 ms step. Default value is set to 500 ms.
+
+**Attention!**
+Currently, sharing of a serial console between users is not supported. The received that will be send randomly to all connected recipients. The status server provides information if the console is being used (1 next to the serial device) or is it idle (zero value next to the serial device).
+
+### Real-time plotting
+
+When in serial console it is possible to plot a graph in real-time. The data sent via serial port is parsed and displayed on a graph. By default plotting is disabled. It can be enabled by checking the *Use plotting* checkbox.
+
+**Attention!**
+The data has to be sent in specific format in order to be parsed correctly. The format is following:
+```
+value1;value2;value3;...[\r]\n
+```
+where values are separated by semicolon and the line ends with carriage return and new line characters (at least a new line is required).
+
+The number of values is not limited. However, the number of values should be kept constant and consistent throughout the whole transmission. Thus, no additional values should be added or removed. Additionally, each value must be an integer or float value.
+
+An example of a proper data frame:
+```
+10;2.1;-3.4;0.0\r\n
+```
+Above consists of 4 values: 10, 2.1, -3.4, 0.0.
+
+Once the data is received it is parsed and displayed on the graph. The number of values is automatically detected and the number of curves is set accordingly. No manual configuration is required.
+
+It is possible to clear the plot or purge it. *Clearing the plot* removes all data from the graph leaving curve configuration intact, thus preserving line colors. *Purging the plot* removes all data and curve configuration. It is useful when the data format has changed and the graph needs to be reinitialized.
+
+The number of retained samples can be adjusted using the *MAx Samples* number field input below the plot. The default value is set to 10 samples.
+
+#### Counter availability
+
+It is possible to use a counter as X axis values. By default each sample is timestamped and added to the graph. However, it is possible to use a counter instead. The first value of a data frame is interpreted as a counter value. Therefore when counter usage is enabled the first value is used as a counter and will not be displayed on the graph.
+
+It is necessary tu *Purge the plot* after enabling or disabling the counter usage.
+
+#### Statistics
+
+The plot offers simple statistics calculated based on received data:
+- last received value,
+- minimum value,
+- maximum value,
+- average value.
+
+Additionally each dataset provides color identification for easier distinction between curves.
 
 ## Video preview (Video)
 
@@ -95,17 +151,6 @@ Terminal console (on the server) is available via web interface. It allows to ex
 ## Status server (Panel)
 
 Besides options available for normal user, now the control of the debugger service is more granular. Super user can start or stop the debugger service independently. 
-Interaction with development board via serial interface was extended. In addition to providing path to serial device it is possible to open a serial console via web interface and directly read/send data.
-
-The serial console offers information to what serial port it was connected and to which development board. More over, it is possible to enable:
-- auto scrolling (enabled by default),
-- append CR,
-- append LF,
-- local echo (enabled by default).
-
-The console automatically pulls data from serial device available on the server and sends it to web interface. It is possible to clear the console or stop data reception. 
-
-Currently, sharing of serial console between users is not supported. The received that will be send randomly to all connected recipients. The status server provides information if the console is being used (1 next to the serial device) or is idle (zero value next to the serial device).
 
 ## Video preview (Video)
 
