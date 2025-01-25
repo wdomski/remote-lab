@@ -76,8 +76,13 @@
    * @param {string} data - incoming data, single line
    */
   function updatePlot(data) {
+    if (data.length === 0) {
+      // console.debug('No data to plot')
+      return
+    }
     // parse data
     parsed = parseData(data)
+    
     timestamp = ''
     counterPresent = dataContainsCounter.checked
   
@@ -94,6 +99,10 @@
    * @param {string} data - incoming data, multiple lines
    */
   function updatePlotMulti(data) {
+    if (data.length === 0) {
+      // console.debug('No data to plot')
+      return
+    }
     chunks = data.split('\n')
     for (let i = 0; i < chunks.length; i++) {
       updatePlot(chunks[i])
