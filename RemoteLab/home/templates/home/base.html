@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="{{request.session.darktheme|default:"dark"}}">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -48,7 +48,8 @@
                     <button type="button" class="btn btn-warning">
                         Video
                     </button>    
-                </a>          
+                </a>
+                <button class="btn {{request.session.darkthemeButton|default:"btn-light"}}" id="skinToggler">Toggle skin <i class="bi {{request.session.darkthemeIcon|default:"bi-sun"}}" id="themeIcon"></i>{% csrf_token %}</button>
             </div>
         </div>        
         <div class="row">
@@ -92,7 +93,57 @@
     </div>
     
     {% block scripts %}
-    {% endblock %}   
+    {% endblock %}
+
+    <script>
+            skinToggler = document.getElementById('skinToggler');
+            const toggleSkin = () => {
+            skinIcon = document.getElementById('themeIcon');
+            skinToggler = document.getElementById('skinToggler');
+
+            var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+            var headers = new Headers();
+            headers.append("X-CSRFToken", csrfToken);
+            var data = new FormData();
+
+            if(document.documentElement.getAttribute("data-bs-theme") == "light"){
+                document.documentElement.setAttribute("data-bs-theme", "dark");
+                skinIcon.classList.remove("bi-brightness-high-fill");
+                skinIcon.classList.add("bi-sun");
+                skinToggler.classList.remove("btn-dark");
+                skinToggler.classList.add("btn-light");
+
+                data.append("darktheme", 'dark');
+                fetch("{% url 'home:set_theme' %}", {
+                    method: "POST",
+                    headers: headers,
+                    credentials: "same-origin",
+                    body: data
+                  })
+                  .then(response => response.text())
+                  .then(text => {
+                  });
+            }else{
+                document.documentElement.setAttribute("data-bs-theme", "light")
+                skinIcon.classList.remove("bi-sun");
+                skinIcon.classList.add("bi-brightness-high-fill");
+                skinToggler.classList.remove("btn-light");
+                skinToggler.classList.add("btn-dark");
+
+                data.append("darktheme", 'light');
+                fetch("{% url 'home:set_theme' %}", {
+                    method: "POST",
+                    headers: headers,
+                    credentials: "same-origin",
+                    body: data
+                  })
+                  .then(response => response.text())
+                  .then(text => {
+                  });
+            }
+        }
+        skinToggler.addEventListener('click', toggleSkin);
+    </script>
 
     <div class="container-fluid" style="margin-top: 2em;">     
         <div class="row">

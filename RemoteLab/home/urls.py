@@ -11,4 +11,5 @@ urlpatterns = [
     path('terminal', views.terminal, name="terminal"),
     path('terminal/reset', views.terminal_reset, name="terminal_reset"),
     path('terminal/update', views.terminal_update, name="terminal_update"),
+    path('settheme', views.set_theme, name="set_theme"),
 ]

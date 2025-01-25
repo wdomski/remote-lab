@@ -206,3 +206,14 @@ def terminal_update(request):
                 reading_lock.release()
 
     return HttpResponse(output, content_type="text/plain")
+
+def set_theme(request):
+    newTheme = request.POST.get('darktheme', "dark")
+    request.session['darktheme'] = newTheme
+    if newTheme == "dark":
+        request.session['darkthemeButton'] = "btn-light"
+        request.session['darkthemeIcon'] = "bi-sun"
+    else:
+        request.session['darkthemeButton'] = "btn-dark"
+        request.session['darkthemeIcon'] = "bi-brightness-high-fill"
+    return HttpResponse("", content_type="text/plain")
