@@ -16,6 +16,9 @@ Serial port: {{serial_port}}<br>
 <input type="checkbox" id="appendCR">Append CR<br>
 <input type="checkbox" id="appendLF">Append LF<br>
 <input type="checkbox" id="localEcho" checked>Local echo<br>
+<label for="refreshRate">Refresh Rate (ms):</label>
+<input type="range" id="refreshRate" name="refreshRate" min="200" max="2000" step="50" value="500" oninput="updateRefreshRate(this.value)">
+<span id="refreshRateValue"></span>ms
 <br>
 <div class="container">
     <div class="row">
@@ -29,9 +32,9 @@ Serial port: {{serial_port}}<br>
             <form id="inputForm" action="#">
                 <input id="writeID" type="hidden" name="id" value="{{id}}">
                 <input id="writeText" type="text" name="data" onkeydown="if(event.keyCode===13) { event.preventDefault(); sendData(); }" style="font-family: monospace; width: 100%;" />
-                <input type="button" onclick="sendData();" value="Send" />
-                <input type="button" onclick="clearData();" value="Clear" />
-                <input id="startStopDataId" type="button" onclick="startStopData();" value="Stop" />
+                <input type="button" class="btn btn-primary" onclick="sendData();" value="Send">
+                <input type="button" class="btn btn-secondary" onclick="clearData();" value="Clear">
+                <input id="startStopDataId" type="button" class="btn btn-danger" onclick="startStopData();" value="Stop">
             </form>
         </div>
     </div>
@@ -46,9 +49,14 @@ Serial port: {{serial_port}}<br>
 
 {% block scripts %}
 <script>
-    var readPeriod = 500;
-    var startStopStatus = 1;
+    var refreshRateValue = document.getElementById("refreshRate").value;
+    var serialReadStarted = true;
+    // update the refresh rate value label
+    document.getElementById("refreshRateValue").innerText = refreshRateValue;
 
+    /*
+    * Function to scroll the textarea to the bottom automatically
+    */
     function scrollFrame() {
         var textarea = document.getElementById("streamFrame");
         if (document.getElementById("autoScroll").checked) {
@@ -56,6 +64,9 @@ Serial port: {{serial_port}}<br>
         }
     }
 
+    /*
+    * Function to send data to the server
+    */
     function sendData() {
         content = document.getElementById("writeText").value;
         if (document.getElementById("appendCR").checked) {
@@ -79,6 +90,9 @@ Serial port: {{serial_port}}<br>
         });
     }
 
+    /*
+    * Function to read data through serial port from the server
+    */
     function readData() {
         var http = new XMLHttpRequest();
         http.onreadystatechange = function () {
@@ -97,21 +111,42 @@ Serial port: {{serial_port}}<br>
         http.send();
     }
 
+    /*
+    * Function to clear the textarea
+    */
     function clearData() {
         document.getElementById("streamFrame").value = "";
     }
 
-    var readDataInterval = setInterval(readData, readPeriod);
+    var readDataInterval = setInterval(readData, refreshRateValue);
 
+    /*
+    * Function to start or stop reading data
+    */
     function startStopData(){
-        if (startStopStatus == 1){
+        if (serialReadStarted == true){
             clearInterval(readDataInterval);
-            startStopStatus = 0;
+            serialReadStarted = false;
             document.getElementById("startStopDataId").value = "Start";
+            document.getElementById("startStopDataId").className = "btn btn-success";
         } else {
-            readDataInterval = setInterval(readData, readPeriod);
-            startStopStatus = 1;
+            readDataInterval = setInterval(readData, refreshRateValue);
+            serialReadStarted = true;
             document.getElementById("startStopDataId").value = "Stop";
+            document.getElementById("startStopDataId").className = "btn btn-danger";
+        }
+    }
+
+    /*
+    * Function to update the refresh rate
+    * @param {number} value - the value of the new refresh rate
+    */
+    function updateRefreshRate(value) {
+        document.getElementById("refreshRateValue").innerText = value;
+        refreshRateValue = parseInt(value);
+        if (serialReadStarted == true) {
+            clearInterval(readDataInterval);
+            readDataInterval = setInterval(readData, refreshRateValue);
         }
     }
 
