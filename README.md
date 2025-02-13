@@ -6,6 +6,16 @@ The project is developed in Python. Initially, the web server providing services
 
 I have created this platform for my students at Wrocław University of Science and Technology. During the period of pandemic it was necessary to develop a tool which would enable students to remotely realize exercise as they would do during normal classes. The initial version was launched in 2020 and since then it is operational 24/7 providing access to remote resources. 
 
+Demonstration of the RemoteLab is available in the below video:
+
+[![RemoteLab a distributed Hardware-as-a-Service demonstration](https://img.youtube.com/vi/YvHmJQDw91k/0.jpg)](https://www.youtube.com/watch?v=YvHmJQDw91k "RemoteLab a distributed Hardware-as-a-Service demonstration")
+
+Also, there are articles featuring the RemoteLab platform:
+
+- [RemoteLab - a distributed Hardware-as-a-Service platform](https://blog.domski.pl/remotelab-a-distributed-hardware-as-a-service/)
+- [RemoteLab goes open source](https://blog.domski.pl/remotelab-goes-open-source/)
+- [RemoteLab can now plot data in real-time](https://blog.domski.pl/remotelab-can-now-plot-data-in-real-time/)
+
 # Installation
 
 First create a virtual environment
@@ -67,6 +77,11 @@ It allows to manage all connected development boards. It allows to:
 - restart debugger service (either openocd or stlink depending on the configuration).
 
 It also provides the port number under which the remote connection to debugger for a given board is available. 
+
+Each board has a status field that determines operation of the debugger service associated with given board. Three states are available:
+- **established**, connection with the debugger session was established and it is currently **active**, unless you terminate current debug session another one cannot be started,
+- **online**, debugger service is active and waiting for incoming connections,
+- **offline**, debugger service is not running. It can be started using Start or Restart button.
 
 Along side with development board model, dedicated serial device and features are displayed. 
 Serial device allows to directly connect to the development board and communicate with it. 
