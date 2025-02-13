@@ -66,6 +66,14 @@ Now, you can run Django server, e.g. using build-in HTTP server
 python manage.py runserver 0.0.0.0:8000
 ```
 
+**Attention!**
+One additional change is required. Since the RemoteLab platform is based on Django you need to provide a secret key. A sample secret key is provided, however it is **highly** recommend to change it.
+
+The key is a text string located in *RemoteLab/RemoteLab/settings.py* file. It is located at line 23. Current value is:
+```
+SECRET_KEY = 'django-insecure-qg5v2u@v0^68gnd%&n3-!avv#((*@#icm43$)kj5x$0-ro7hwc'
+```
+
 # Available features (for all users)
 
 ## Status server (Panel)
