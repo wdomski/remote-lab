@@ -23,8 +23,8 @@ def image(request, data={}):
     if not camera_device.is_available():
         data["message"] = "Camera not available"
         data["message_type"] = "danger"
-
-    camera_device.stop_stream()
+    else:
+        camera_device.stop_stream()
     return render(request, "video/image.html", data)
 
 
@@ -38,9 +38,11 @@ def jpeg_compression(stream):
 
 
 def camera(request):
-    stream = camera_device.get_image()
-
     response = HttpResponse(content_type="image/jpeg")
+    if not camera_device.is_available():
+        return response
+
+    stream = camera_device.get_image()
 
     stream.seek(0)
     stream = jpeg_compression(stream)

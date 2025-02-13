@@ -39,17 +39,15 @@
         <td> <a href="{% url 'boards:start_debugger' dev.id %}">Start</a> </td>
         <td> <a href="{% url 'boards:stop_debugger' dev.id %}">Stop</a> </td>
         {% endif %}
-        <td> {{dev.debugger_service}} </td>
+        <td> {{dev.debugger_service}}</td>
         <td> {{dev.port}} </td>
-        <td> 
-           {% if dev.status == "Online" %}
-           <span class="bi bi-emoji-smile"></span>
-           {% elif dev.status == "Offline" %}
-           <span class="bi bi-emoji-frown"></span>
-           {% elif dev.status == "Error" %}
-           <span class="bi bi-exclamation-triangle"></span>
+        <td>
+           {% if dev.port_established %}
+                <span class="bi bi-lightning"></span><br>Established
+           {% elif dev.port_listen %}
+                <span class="bi bi-emoji-smile"></span><br>Online
            {% else %}
-           {{dev.status}}
+                <span class="bi bi-exclamation-triangle"></span><br>Offline
            {% endif %}
         </td>
         <td> {{dev.board}} </td>

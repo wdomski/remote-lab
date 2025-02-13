@@ -5,7 +5,7 @@ import time
 import socket
 
 from utils.ConfigParsers import read_json
-from utils.check_port import checkPort
+from utils.check_port import checkPort, check_active_connection
 from utils.check_usb import serialDeviceList
 from utils.DebuggerService import DebuggerService
 from utils.SerialTerminal import SerialGovernor
@@ -21,11 +21,20 @@ serial_governor = SerialGovernor()
 
 def list_devices():
     parsed_devices = []
+
+    ports_statuses = check_active_connection(["openocd", "st-util"])
+    try:
+        ports_statuses = check_active_connection(["openocd", "st-util"])
+    except:
+        ports_statuses = {}
+        print("Cannot determine status of ports")
+
     for dev in devices:
         parsed_device = {
             "id": dev["id"],
             "port": dev["port"],
-            "status": "Error",
+            "port_listen": False,
+            "port_established": False,
             "board": dev["board"],
             "serial": "Unavailable",
             "features": ", ".join(dev["features"]),
@@ -33,11 +42,12 @@ def list_devices():
             "serial_in_use": False,
         }
 
-        status = checkPort(int(dev["port"]))
-        if status == 0:
-            parsed_device["status"] = "Online"
-        elif status == 1:
-            parsed_device["status"] = "Offline"
+        port = int(dev["port"])
+        if port in ports_statuses:
+            if ports_statuses[port].get("established", False):
+                parsed_device["port_established"] = True
+            if ports_statuses[port].get("listen", False):
+                parsed_device["port_listen"] = True
 
         serial_number = dev["serial"]
         if serial_number in serial_devices:

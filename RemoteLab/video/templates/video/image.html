@@ -14,7 +14,9 @@
     <div class="row">
         <div class="col-12">
             <div class="container">
-                Automatic refresh: <input type="checkbox" id="autoRefresh" {% if auto_refresh %}checked{% endif %}>
+                Automatic refresh: <input type="checkbox" id="autoRefresh" {% if auto_refresh %}checked{% endif %}> <br>
+                <label for="refreshInterval">Refresh Interval (seconds): <span id="refreshIntervalValue"></span></label> <br>
+                <input type="range" id="refreshInterval" min="5" max="20" step="0.5" value="10">
             </div>
         </div>
     </div>    
@@ -26,29 +28,30 @@
 {% block scripts %}
 <script>
     var loadTime = new Date();
+    const refreshIntervalCallbackMs = 100;
 
     function refreshDateTime() {
         var currentTime = new Date();
-        var elapsedTime = Math.floor((currentTime - loadTime) / 1000);
-        var refreshTime = 10 - (elapsedTime % 60);
+        var elapsedTime = (currentTime - loadTime) / 1000;
+        var refreshInterval = parseFloat(document.getElementById("refreshInterval").value);
+        var refreshTime = Math.round(refreshInterval - elapsedTime);
         var autoRefresh = document.getElementById("autoRefresh").checked;
         if( autoRefresh ) {
-            document.getElementById("refreshTime").innerHTML = "Page will refresh in " + refreshTime + "  seconds";
+            document.getElementById("refreshTime").innerHTML = "Page will refresh in " + refreshTime + " seconds";
         } else {
             document.getElementById("refreshTime").innerHTML = "Automatic refresh OFF";
         }          
         if (refreshTime <= 0) {
-            // try to refresh only every 5 seconds
-            if (Math.abs(refreshTime % 5) === 0) {
-                // get refresh checkbox status
-                if (autoRefresh) {
-                    // refresh page
-                    if ( window.history.replaceState ) {
-                        window.history.replaceState( null, null, window.location.href );
-                    }
-                    window.location = window.location.href;
+            // get refresh checkbox status
+            if (autoRefresh) {
+                // refresh page
+                if ( window.history.replaceState ) {
+                    window.history.replaceState( null, null, window.location.href );
                 }
+                window.location = window.location.href;
             }
+            // retry in 5 seconds
+            loadTime += 5;
         }
     }
 
@@ -70,8 +73,22 @@
         });        
     });
 
+    // preserve value of the refresh interval
+    document.getElementById("refreshInterval").addEventListener("change", function() {
+        var refreshInterval = document.getElementById("refreshInterval").value;
+        localStorage.setItem("refreshInterval", refreshInterval);
+        document.getElementById("refreshIntervalValue").innerHTML = refreshInterval;
+    });
+
+    // restore value of the refresh interval
+    var refreshInterval = localStorage.getItem("refreshInterval");
+    if (refreshInterval) {
+        document.getElementById("refreshInterval").value = refreshInterval;
+        document.getElementById("refreshIntervalValue").innerHTML = refreshInterval;
+    }
+
     refreshDateTime();
-    setInterval(refreshDateTime, 1000);
+    setInterval(refreshDateTime, refreshIntervalCallbackMs);
 
 </script>
 {% endblock %}
