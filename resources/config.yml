@@ -1,4 +1,6 @@
 boards_config: "/path/to/resources/boards.json"
 password: "hash for super user password"
-
+camera:
+  resolution: "3280x2464"
+  jpeg_quality: 0
 

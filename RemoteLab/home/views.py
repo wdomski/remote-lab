@@ -6,12 +6,14 @@ import socket
 import multiprocessing
 import subprocess
 import hashlib
+import os
 
 from utils.yaml import read_yaml
 
 hostname = socket.gethostname()
 
-config_file = "/home/pi/mcu-remote-work-pwr/resources/config.yml"
+config_file_default = "/home/pi/mcu-remote-work-pwr/resources/config.yml"
+config_file = os.environ.get("REMOTELAB_CONFIG_FILE", config_file_default)
 config = {"boards_config": "/home/pi/mcu-remote-work-pwr/resources/boards.json",
                   "password": ""}
 config_read = read_yaml(config_file)

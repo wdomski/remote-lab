@@ -237,6 +237,29 @@ def stop_debugger(request, id: str):
     return render(request, "boards/index.html", data)
 
 
+def restart_all_debugger(request):
+    # check if id is inside devices
+    available_ids = [dev["id"] for dev in devices]
+    for id in available_ids:
+        message_type = "success"
+        message = f"Restarted all boards"
+        try:
+            debugger = DebuggerService(devices, hostname, verbose=True)
+            debugger.restart(id=id)
+        except Exception as e:
+            message_type = "danger"
+            message = "Error occurred during restart all"
+            print(e)
+        time.sleep(0.5)
+
+    data = list_devices()
+    data.update(get_status())
+    data["message"] = message
+    data["message_type"] = message_type
+
+    return render(request, "boards/index.html", data)
+
+
 def serial_console(request, id: str):
     data = list_devices()
     data.update(get_status())

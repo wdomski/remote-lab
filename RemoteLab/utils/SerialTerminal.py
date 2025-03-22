@@ -71,6 +71,11 @@ class SerialGovernor:
         while True:
             diff = 0
             if lock.acquire(blocking=True, timeout=1.0):
+                if serial_device not in self._serial_list:
+                    lock.release()
+                    event_close.set()
+                    print(f"Device {device} does not exist anymore, closing")
+                    break
                 diff = time.time() - self._serial_list[serial_device]['last_action'] 
                 if diff > delay:
                     del self._serial_list[serial_device]

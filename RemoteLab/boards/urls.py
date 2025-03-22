@@ -12,6 +12,7 @@ urlpatterns = [
     path('restart_debugger/<str:id>/', views.restart_debugger, name="restart_debugger"),
     path('start_debugger/<str:id>/', views.start_debugger, name="start_debugger"),
     path('stop_debugger/<str:id>/', views.stop_debugger, name="stop_debugger"),
+    path('restart_all_debugger/', views.restart_all_debugger, name="restart_all_debugger"),
     path('serial/<str:id>/', views.serial_console, name="serial_console"),
     path('serial_read_stream/<str:id>/', views.serial_read_stream, name="serial_read_stream"),    
     path('serial_read/<str:id>/', views.serial_read, name="serial_read"),    

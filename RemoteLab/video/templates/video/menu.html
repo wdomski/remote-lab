@@ -3,12 +3,12 @@
         Image
     </button>    
 </a>
-{% if request.session.login_successful > 0 %}
 <a href="{% url 'video:video_jpeg' %}">
     <button type="button" class="btn btn-warning">
         Video
     </button>    
-</a>  
+</a>
+{% if request.session.login_successful > 0 %}
 <a href="{% url 'video:settings' %}">
     <button type="button" class="btn btn-info">
         Settings

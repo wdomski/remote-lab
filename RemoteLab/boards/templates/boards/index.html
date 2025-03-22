@@ -10,6 +10,11 @@
 
 {% block content %}
 
+{% if request.session.login_successful > 0 %}
+<a href="{% url 'boards:restart_all_debugger'%}">Restart all</a>
+<br>
+{% endif %}
+
 <table class="table">
     <thead>
         <td> ID </td>

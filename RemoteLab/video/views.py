@@ -3,12 +3,33 @@ from django.http import HttpResponse, StreamingHttpResponse
 from utils.camera import CameraDevice
 from utils.configuration import Configuration
 from home.views import check_authorized, get_status
+import os
+
+from utils.yaml import read_yaml
 
 camera_device = CameraDevice()
 
+config_file_default = "/home/pi/mcu-remote-work-pwr/resources/config.yml"
+config_file = os.environ.get("REMOTELAB_CONFIG_FILE", config_file_default)
+
+camera_default_config = {
+    "resolution": "1920x1080",
+}
+camera_config = {}
+
+config_read = read_yaml(config_file)
+if "camera" not in config_read:
+    camera_config = camera_default_config
+else:
+    camera_config = config_read["camera"]
+    # populate keys with default values if they are not present
+    for key, value in camera_default_config.items():
+        if key not in camera_config:
+            camera_config[key] = value
+
 camera_settings = camera_device.get_settings()
 camera_settings.restore_default()
-camera_settings.from_dict({"resolution": "3280x2464"})
+camera_settings.from_dict(camera_config)
 if camera_device.is_available():
     camera_device.reconfigure(camera_settings)
 
@@ -52,9 +73,6 @@ def camera(request):
 
 
 def stream_jpeg(request):
-    auth = check_authorized(request)
-    if auth is not None:
-        return auth
     streamer = camera_device.streamer("jpeg")
     return StreamingHttpResponse(
         streamer, content_type="multipart/x-mixed-replace;boundary=frame"
@@ -62,10 +80,6 @@ def stream_jpeg(request):
 
 
 def video_jpeg(request):
-    auth = check_authorized(request)
-    if auth is not None:
-        return auth
-
     data = get_status()
 
     if not camera_device.is_available():

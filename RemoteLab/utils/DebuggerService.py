@@ -107,7 +107,7 @@ class DebuggerService():
                 % (cfg, dev['serial'], gdb_port, tcl_port, telnet_port)
             if self._verbose:
                 print(command)
-            subprocess.run(command, shell=True, close_fds=True)
+            subprocess.run(command, shell=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif dev['debugger_service']=="st-util-repo" or dev['debugger_service']=="st-util":
             gdb_port, _, _ = self._ports(dev['port'])
             command = 'nohup st-util --serial %s -p %s -m &> /dev/null &' \
