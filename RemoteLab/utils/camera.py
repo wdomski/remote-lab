@@ -281,6 +281,11 @@ class CameraDevice:
     def is_available(self) -> bool:
         return self._device is not None
 
+    def is_streaming(self) -> bool:
+        if self._device is None:
+            return False
+        return self._streaming
+
     def get_available_resolutions(self) -> List:
         if self._camera_lib == "picamera":
             return [

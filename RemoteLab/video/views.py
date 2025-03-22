@@ -63,6 +63,12 @@ def camera(request):
     if not camera_device.is_available():
         return response
 
+    if camera_device.is_streaming():
+        # camera is already streaming, so take a frame from the stream
+        streamer = camera_device.streamer("jpeg")
+        response.write(next(streamer))
+        return response
+
     stream = camera_device.get_image()
 
     stream.seek(0)
